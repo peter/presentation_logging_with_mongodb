@@ -1,0 +1,110 @@
+h1. Request Logging with MongoDB
+
+h1. Overview
+
+* A consolidated request log for all app servers
+* Every request becomes a single document in MongoDB
+* Logging is done from a Rack middleware
+* The solution is packages up in the request_log RubyGem
+
+h1. MongoDB Advantages
+
+* Asynchronous fast inserts yield a small overhead (a couple of ms)
+* Capped collections for log rolling
+* Flexible schema
+* Good query capabilities
+
+h1. A Basic Request Document
+
+<pre>
+method: "GET"
+path: "/"
+ip: "10.218.1.177"
+time: 2010-10-28 21:43:38 UTC
+params: {"hello_world"=>"1"}
+status: 200
+runtime: 0.000303
+</pre>
+
+h1. A Request Document with Custom Fields
+
+<pre>
+method: "GET"
+path: "/v1/brands/mama-se/products"
+status: 200
+time: 2010-12-11 15:19:56 UTC
+runtime: 0.018139
+ip: "10.244.167.17"
+params: {"brand_id"=>"mama-se", "x_apple_receipt"=>"[FILTERED]"}
+controller: "v1/products"
+action: "index"
+user_agent: "Mama+ 1.51 (iPad; iPhone OS 4.2; sv_SE; mama-se; 1.51; 0d870bfad89889fb924ab979e43c17c743db5cf0)"
+app_version_market: "1.51"
+app_type: "iPad"
+app_os: "iPhone OS 4.2"
+app_locale: "sv_SE"
+brand_id: "mama-se"
+app_version: "1.51"
+device_id: "0d870bfad89889fb924ab979e43c17c743db5cf0"
+</pre>
+
+h1. Gem Dependencies
+
+<pre>
+  gem 'mongo', '~> version known to work'
+  gem 'bson_ext', '~> version known to work'
+  gem 'request_log', '~> version known to work'
+</pre>
+
+h1. Connecting to MongoDB
+
+<pre>
+if ENV['MONGOHQ_URL']
+  require 'uri'
+  require 'mongo'      
+  uri = URI.parse(ENV['MONGOHQ_URL'])
+  connection = Mongo::Connection.from_uri(uri.to_s)
+  RequestLog::Db.mongo_db = connection.db(uri.path.gsub(/^\//, ''))
+end
+</pre>	
+
+h1. Tailing the Log
+
+<pre>
+rake request_log:tail
+</pre>
+
+h1. Log Query: Time and Status
+
+<pre>
+rake request_log:print
+	from = "2010-10-28 17:06:08"
+	to = "2010-10-28 17:06:10"
+	conditions = 'status: 200'
+</pre>  
+
+h1. Log Query: Path Regexp
+
+:inlinecode
+"path" => /promo/
+:endinlinecode
+
+h1. Log Query: Runtime
+
+:inlinecode
+"runtime" => {"$gt" => 0.5}
+:endinlinecode
+
+h1. Log Query: Params (Embedded Data)
+
+:inlinecode
+"params.currency" => "USD"
+:endinlinecode
+
+h1. Resources
+
+* "Request Log RubyGem":http://github.com/peter/request_log
+* "MongoDB is Fantastic for Logging":http://blog.mongodb.org/post/172254834/mongodb-is-fantastic-for-logging
+* "Graylog2":http://www.graylog2.org
+* "Loggly":http://www.loggly.com
+* "Splunk":http://www.splunk.com

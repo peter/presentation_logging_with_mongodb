@@ -1,0 +1,23 @@
+############################################################################################
+### Request Logging with MongoDB
+############################################################################################
+
+These are my slides for a presentation held at the Rails Meetup in Stockholm on December 16:th
+2010, see: http://rails.se/rails/show/SHRUG+16+December+2010
+
+############################################################################################
+### NOTES
+############################################################################################
+
+h1. Overview
+- Heroku doesn't retain Rails request logs and has a read-only file system.
+- I tried the Logworm service (also MongoDB based) which is in beta. However, I had various
+  issues with it and ended up rolling my own.
+- I use MongoHQ for hosting MongoDB
+
+h1. References
+- A web interface with graphs would be nice...
+
+############################################################################################
+### REFERENCES
+############################################################################################
